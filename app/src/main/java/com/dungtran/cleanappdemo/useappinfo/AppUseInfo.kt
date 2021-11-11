@@ -1,15 +1,14 @@
 package com.dungtran.cleanappdemo.useappinfo
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.icu.text.DateFormat.MEDIUM
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 
 import android.text.format.DateUtils
 import android.util.ArrayMap
@@ -26,44 +25,111 @@ import com.dungtran.cleanappdemo.databinding.ActivityAppUseInfoBinding
 import com.dungtran.cleanappdemo.model.AppInfo
 import java.text.DateFormat
 import java.util.*
-import android.app.AppOpsManager
-import android.os.Process
-import android.app.ActivityManager
-import android.app.ActivityManager.RunningAppProcessInfo
-import android.os.Debug
+import android.app.usage.StorageStats
+import android.app.usage.StorageStatsManager
+import android.os.*
+import android.os.storage.StorageManager
+import android.os.storage.StorageManager.UUID_DEFAULT
+import android.view.Menu
+import android.view.MenuItem
+import kotlin.collections.ArrayList
 
 
 class AppUseInfo : AppCompatActivity() {
     lateinit var binding: ActivityAppUseInfoBinding
 
     private lateinit var mUsageStatsManager: UsageStatsManager
+    private lateinit var mStorageStatsManager: StorageStatsManager
+
     private lateinit var mPm: PackageManager
     lateinit var adapter: AppInfoAdapter
-    lateinit var recyclerViewApp: RecyclerView
     private var layoutAppManager: RecyclerView.LayoutManager? = null
     private var mInflater: LayoutInflater? = null
 
     private val mAppLabelMap = ArrayMap<String, String>()
+    private val mAppSizeMap = ArrayMap<String, Long>()
+
+
     private val mPackageStats: ArrayList<UsageStats> = ArrayList()
+    private val mPackageStorageStats: ArrayList<StorageStats> = ArrayList()
 
-    private var appInfoList: ArrayList<AppInfo> = ArrayList()
+    private var appInfoList: MutableList<AppInfo> = mutableListOf()
 
+    @SuppressLint("NewApi")
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityAppUseInfoBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-    fun getInformation() {
+        mUsageStatsManager = getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
+        mStorageStatsManager = getSystemService(STORAGE_STATS_SERVICE) as StorageStatsManager
+
+        mInflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        mPm = packageManager
+        getInformation()
+
+        convertInformation()
+
+        setUpRecycleView()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onStart() {
+        super.onStart()
+        binding.toolBar.setOnMenuItemClickListener { it1 ->
+            when (it1.itemId) {
+                R.id.sort_used_data -> {
+                    appInfoList.sortByDescending { it.usedMemory }
+                    adapter.notifyDataSetChanged()
+                    display()
+                    true
+                }
+                R.id.sort_total_time -> {
+                    appInfoList.sortByDescending { it.totalTime }
+                    adapter.notifyDataSetChanged()
+                    true
+                }
+                R.id.sort_last_time -> {
+                    appInfoList.sortByDescending { it.lastUsed }
+                    adapter.notifyDataSetChanged()
+                    true
+                }
+                else -> {
+                    print("")
+                    true
+                }
+            }
+        }
+    }
+
+    private fun setUpRecycleView() {
+        adapter = AppInfoAdapter()
+        adapter.setData(appInfoList)
+        layoutAppManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.recycleView.layoutManager = layoutAppManager
+        binding.recycleView.adapter = adapter
+    }
+
+    private fun display() {
+        for (i in 0 until appInfoList.size) {
+            val pkgStats = appInfoList[i]
+            Log.d("App user information", "stats: " + pkgStats.usedMemory)
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private fun getInformation() {
         val cal: Calendar = Calendar.getInstance()
         cal.add(Calendar.DAY_OF_YEAR, -5)
 
         val stats: List<UsageStats> = mUsageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_BEST,
+            UsageStatsManager.INTERVAL_WEEKLY,
             cal.timeInMillis, System.currentTimeMillis()
         )
 
-
-
         val map: ArrayMap<String, UsageStats> = ArrayMap()
         val statCount = stats.size
-
-        Log.d("AppUseInfo", "getInformation: $statCount")
 
         for (i in 0 until statCount) {
             val pkgStats = stats[i]
@@ -72,7 +138,12 @@ class AppUseInfo : AppCompatActivity() {
             try {
                 val appInfo: ApplicationInfo = mPm.getApplicationInfo(pkgStats.packageName, 0)
                 val label = appInfo.loadLabel(mPm).toString()
+
+                val tmp = mStorageStatsManager.queryStatsForPackage(
+                    StorageManager.UUID_DEFAULT, pkgStats.packageName, android.os.Process.myUserHandle())
+
                 mAppLabelMap[pkgStats.packageName] = label
+                mAppSizeMap[pkgStats.packageName] = tmp.dataBytes + tmp.appBytes
                 val existingStats: UsageStats? = map[pkgStats.packageName]
                 if (existingStats == null) {
                     map[pkgStats.packageName] = pkgStats
@@ -84,62 +155,60 @@ class AppUseInfo : AppCompatActivity() {
             }
         }
         mPackageStats.addAll(map.values)
-
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAppUseInfoBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        menuInflater.inflate(R.menu.sort_menu, menu)
+//        return super.onCreateOptionsMenu(menu)
+//    }
 //
-//        val am = applicationContext.getSystemService(ACTIVITY_SERVICE)
-//        val list = am.runningAppProcesses
-//        if (list != null) {
-//            for (i in list.indices) {
-//                val appinfo = list[i]
-//                val myMempid = intArrayOf(appinfo.pid)
-//                val appMem: Array<Debug.MemoryInfo> = am.getProcessMemoryInfo(myMempid)
-//                val memSize: Int = appMem[0].dalvikPrivateDirty / 1024
-//                Log.e("AppMemory", appinfo.processName + ":" + memSize)
+//    @SuppressLint("NotifyDataSetChanged")
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        Log.d("AppUseInfo", "onOptionsItemSelected: change")
+//        val id = item.itemId
+//        when (id) {
+//            R.id.sort_used_data -> {
+//
+//                appInfoList.sortByDescending {
+//                    it.usedMemory
+//                }
+//                adapter.notifyDataSetChanged()
+//            }
+//            R.id.sort_total_time -> {
+//                appInfoList.sortBy {
+//                    it.totalTime
+//                }
+//                adapter.notifyDataSetChanged()
+//            }
+//            R.id.sort_last_time -> {
+//                appInfoList.sortBy {
+//                    it.lastUsed
+//                }
+//                adapter.notifyDataSetChanged()
+//
 //            }
 //        }
-
-
-        mUsageStatsManager = getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
-        mInflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        mPm = packageManager
-        getInformation()
-
-        adapter = AppInfoAdapter()
-        convertInformation()
-        adapter.setData(appInfoList)
-        layoutAppManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        binding.recycleView.layoutManager = layoutAppManager
-
-        binding.recycleView.adapter = adapter
-    }
+//
+//        return super.onOptionsItemSelected(item)
+//    }
 
 
     private fun convertInformation() {
         val appCount = mPackageStats.size
         Log.d("AppUseInfo", "convertInformation: $appCount")
-//        val tmp = AppInfo(name, 40, usageTime, lastTimeUse)
         for (i in 0 until appCount) {
             val name = mAppLabelMap[mPackageStats[i].packageName].toString()
-            val lastTimeUse = DateUtils.formatSameDayTime(mPackageStats[i].lastTimeUsed,
-                System.currentTimeMillis(), DateFormat.MEDIUM, DateFormat.MEDIUM).toString()
-            val usageTime = DateUtils.formatElapsedTime(
-                mPackageStats[i].totalTimeInForeground / 1000).toString()
-            if (lastTimeUse != "1 Th1, 1970") {
 
-                val tmp = AppInfo(name, 40, usageTime, lastTimeUse)
+            val usedMemory = mAppSizeMap[mPackageStats[i].packageName]!!.toLong()
+
+            val lastTimeUse = mPackageStats[i].lastTimeUsed
+
+            val usageTime = mPackageStats[i].totalTimeInForeground / 1000
+            if (true) {
+                val tmp = AppInfo(name, usedMemory, usageTime, lastTimeUse)
                 appInfoList.add(tmp)
             }
         }
 
     }
-
-
 }

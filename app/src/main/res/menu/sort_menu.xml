@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/sort_used_data"
+        android:title="Sort by used data"
+        />
+    <item
+        android:id="@+id/sort_total_time"
+        android:title="Sort by total time"
+        />
+    <item
+        android:id="@+id/sort_last_time"
+        android:title="Sort by last time"
+        />
+
+
+
+</menu>
