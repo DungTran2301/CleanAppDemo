@@ -51,6 +51,7 @@ class AppInfoAdapter: RecyclerView.Adapter<AppInfoAdapter.ViewHolder>() {
         var usedMemory: TextView = itemView.findViewById(R.id.tv_used_memory)
         var usedTime: TextView = itemView.findViewById(R.id.tv_used_time)
         var lastUse: TextView = itemView.findViewById(R.id.tv_last_use)
+        var iconApp: ImageView = itemView.findViewById(R.id.img_icon_app)
 
         fun initialize(item: AppInfo) {
             appName.text = item.name
@@ -59,6 +60,7 @@ class AppInfoAdapter: RecyclerView.Adapter<AppInfoAdapter.ViewHolder>() {
                 item.totalTime / 1000)
             lastUse.text = DateUtils.formatSameDayTime(item.lastUsed,
                 System.currentTimeMillis(), DateFormat.MEDIUM, DateFormat.MEDIUM)
+            iconApp.setImageDrawable(item.icon)
 
         }
     }

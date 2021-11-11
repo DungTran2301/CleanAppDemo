@@ -121,7 +121,7 @@ class AppUseInfo : AppCompatActivity() {
     @SuppressLint("NewApi")
     private fun getInformation() {
         val cal: Calendar = Calendar.getInstance()
-        cal.add(Calendar.DAY_OF_YEAR, -5)
+        cal.add(Calendar.DAY_OF_YEAR, -1)
 
         val stats: List<UsageStats> = mUsageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_WEEKLY,
@@ -143,7 +143,7 @@ class AppUseInfo : AppCompatActivity() {
                     StorageManager.UUID_DEFAULT, pkgStats.packageName, android.os.Process.myUserHandle())
 
                 mAppLabelMap[pkgStats.packageName] = label
-                mAppSizeMap[pkgStats.packageName] = tmp.dataBytes + tmp.appBytes
+                mAppSizeMap[pkgStats.packageName] = tmp.dataBytes + tmp.appBytes + tmp.cacheBytes
                 val existingStats: UsageStats? = map[pkgStats.packageName]
                 if (existingStats == null) {
                     map[pkgStats.packageName] = pkgStats
@@ -157,57 +157,18 @@ class AppUseInfo : AppCompatActivity() {
         mPackageStats.addAll(map.values)
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.sort_menu, menu)
-//        return super.onCreateOptionsMenu(menu)
-//    }
-//
-//    @SuppressLint("NotifyDataSetChanged")
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        Log.d("AppUseInfo", "onOptionsItemSelected: change")
-//        val id = item.itemId
-//        when (id) {
-//            R.id.sort_used_data -> {
-//
-//                appInfoList.sortByDescending {
-//                    it.usedMemory
-//                }
-//                adapter.notifyDataSetChanged()
-//            }
-//            R.id.sort_total_time -> {
-//                appInfoList.sortBy {
-//                    it.totalTime
-//                }
-//                adapter.notifyDataSetChanged()
-//            }
-//            R.id.sort_last_time -> {
-//                appInfoList.sortBy {
-//                    it.lastUsed
-//                }
-//                adapter.notifyDataSetChanged()
-//
-//            }
-//        }
-//
-//        return super.onOptionsItemSelected(item)
-//    }
-
 
     private fun convertInformation() {
         val appCount = mPackageStats.size
         Log.d("AppUseInfo", "convertInformation: $appCount")
         for (i in 0 until appCount) {
             val name = mAppLabelMap[mPackageStats[i].packageName].toString()
-
             val usedMemory = mAppSizeMap[mPackageStats[i].packageName]!!.toLong()
-
             val lastTimeUse = mPackageStats[i].lastTimeUsed
-
             val usageTime = mPackageStats[i].totalTimeInForeground / 1000
-            if (true) {
-                val tmp = AppInfo(name, usedMemory, usageTime, lastTimeUse)
-                appInfoList.add(tmp)
-            }
+            val icon = mPm.getApplicationIcon(mPackageStats[i].packageName)
+
+            appInfoList.add(AppInfo(name, usedMemory, usageTime, lastTimeUse, icon))
         }
 
     }
