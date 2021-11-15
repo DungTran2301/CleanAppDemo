@@ -1,4 +1,4 @@
-package com.dungtran.cleanappdemo.model
+package com.dungtran.cleanappdemo.statisticapps.model
 
 import android.graphics.drawable.Drawable
 

@@ -1,4 +1,4 @@
-package com.dungtran.cleanappdemo.useappinfo
+package com.dungtran.cleanappdemo.statisticapps
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,21 +7,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.dungtran.cleanappdemo.R
-import com.dungtran.cleanappdemo.model.AppInfo
+import com.dungtran.cleanappdemo.statisticapps.model.AppInfo
 import java.text.DateFormat
-import android.icu.text.DateFormat.MEDIUM
-import android.app.usage.UsageStats
 
-import android.content.pm.ApplicationInfo
-
-import android.app.usage.UsageStatsManager
-import android.content.pm.PackageManager
-import android.icu.text.DateFormat.MEDIUM
 import android.text.format.DateUtils
-import android.util.ArrayMap
-import java.text.DateFormat.MEDIUM
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class AppInfoAdapter: RecyclerView.Adapter<AppInfoAdapter.ViewHolder>() {
@@ -33,12 +22,12 @@ class AppInfoAdapter: RecyclerView.Adapter<AppInfoAdapter.ViewHolder>() {
         this.appInfoList = dishList
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppInfoAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.app_card_info, parent, false)
         return ViewHolder(v)
     }
 
-    override fun onBindViewHolder(holder: AppInfoAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.initialize(appInfoList[position])
     }
 

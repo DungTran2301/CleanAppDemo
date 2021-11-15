@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CleanAppDemo">
         <activity
-            android:name=".useappinfo.AppUseInfo"
+            android:name=".statisticapps.AppUseInfo"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

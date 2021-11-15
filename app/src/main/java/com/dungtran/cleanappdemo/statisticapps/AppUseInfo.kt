@@ -1,37 +1,27 @@
-package com.dungtran.cleanappdemo.useappinfo
+package com.dungtran.cleanappdemo.statisticapps
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
-import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.icu.text.DateFormat.MEDIUM
 import androidx.appcompat.app.AppCompatActivity
 
-import android.text.format.DateUtils
 import android.util.ArrayMap
-import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
-import android.widget.AdapterView
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dungtran.cleanappdemo.R
 import com.dungtran.cleanappdemo.databinding.ActivityAppUseInfoBinding
-import com.dungtran.cleanappdemo.model.AppInfo
-import java.text.DateFormat
+import com.dungtran.cleanappdemo.statisticapps.model.AppInfo
 import java.util.*
 import android.app.usage.StorageStats
 import android.app.usage.StorageStatsManager
+import android.content.pm.ApplicationInfo.FLAG_SYSTEM
 import android.os.*
 import android.os.storage.StorageManager
-import android.os.storage.StorageManager.UUID_DEFAULT
-import android.view.Menu
-import android.view.MenuItem
 import kotlin.collections.ArrayList
 
 
@@ -158,6 +148,7 @@ class AppUseInfo : AppCompatActivity() {
     }
 
 
+    @SuppressLint("WrongConstant")
     private fun convertInformation() {
         val appCount = mPackageStats.size
         Log.d("AppUseInfo", "convertInformation: $appCount")
@@ -168,7 +159,11 @@ class AppUseInfo : AppCompatActivity() {
             val usageTime = mPackageStats[i].totalTimeInForeground / 1000
             val icon = mPm.getApplicationIcon(mPackageStats[i].packageName)
 
-            appInfoList.add(AppInfo(name, usedMemory, usageTime, lastTimeUse, icon))
+            val m = mPm.getApplicationInfo(mPackageStats[i].packageName, PackageManager.GET_META_DATA)
+            val isSystemApp = m.flags and FLAG_SYSTEM
+            if (isSystemApp == 0) {
+                appInfoList.add(AppInfo(name, usedMemory, usageTime, lastTimeUse, icon))
+            }
         }
 
     }
