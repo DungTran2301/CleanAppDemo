@@ -7,10 +7,13 @@
     android:layout_margin="5dp"
     android:elevation="100dp">
 
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white">
+
+
 
         <ImageView
             android:id="@+id/img_icon_app"
@@ -35,6 +38,7 @@
             android:layout_marginLeft="107dp"
             android:layout_marginTop="17dp"
             android:layout_marginBottom="56dp"
+            android:singleLine="false"
             android:text="app name"
             android:textColor="@color/black"
             android:textSize="20sp"
@@ -42,19 +46,19 @@
 
         <TextView
             android:id="@+id/tv_used_memory"
-            android:layout_width="130dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="254dp"
-            android:layout_marginLeft="254dp"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="59dp"
-            android:text="Dung luong"
+            android:layout_marginLeft="320dp"
+            android:layout_marginTop="70dp"
+            android:layout_marginEnd="48dp"
+            android:layout_marginBottom="3dp"
+            android:text="1 GB"
             android:textColor="@color/black"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
@@ -68,7 +72,7 @@
             android:layout_marginStart="261dp"
             android:layout_marginLeft="261dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="59dp"
             android:text="Thoi gian"
             android:textColor="@color/black"
             android:textSize="20sp"
@@ -80,12 +84,26 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="110dp"
+            android:layout_marginStart="111dp"
             android:layout_marginLeft="0dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="27dp"
             android:text="@string/app_name"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
+        <ProgressBar
+            android:id="@+id/pb_memory_percent"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:progressDrawable="@drawable/progress_bar_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="8dp"
+            android:layout_toStartOf="@+id/tv_used_memory"
+            android:layout_toEndOf="@+id/img_icon_app"
+            android:max="100"
+            android:scaleY="0.4" />
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

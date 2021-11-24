@@ -22,6 +22,7 @@ import android.app.usage.StorageStatsManager
 import android.content.pm.ApplicationInfo.FLAG_SYSTEM
 import android.os.*
 import android.os.storage.StorageManager
+import com.dungtran.cleanappdemo.statisticapps.adapter.AppInfoAdapter
 import kotlin.collections.ArrayList
 
 
