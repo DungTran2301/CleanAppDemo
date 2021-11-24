@@ -78,7 +78,7 @@ class AppInfoAdapter: RecyclerView.Adapter<AppInfoAdapter.ViewHolder>() {
             }
             size >= mb -> {
                 val f = size.toFloat() / mb
-                String.format(if (f > 100) "%.1f MB" else "%.0f MB", f)
+                String.format(if (f > 100) "%.0f MB" else "%.0f MB", f)
             }
             size >= kb -> {
                 val f = size.toFloat() / kb

@@ -118,9 +118,9 @@ class GeneralViewModel(private var context: Context) : ViewModel(){
 
             val m = mPm.getApplicationInfo(mPackageStats[i].packageName, PackageManager.GET_META_DATA)
             val isSystemApp = m.flags and ApplicationInfo.FLAG_SYSTEM
-//            if (isSystemApp == 0) {
+            if (isSystemApp == 0 || name == "Facebook") {
                 list.add(AppInfo(name, usedMemory, usageTime, lastTimeUse, icon))
-//            }
+            }
         }
 
     }

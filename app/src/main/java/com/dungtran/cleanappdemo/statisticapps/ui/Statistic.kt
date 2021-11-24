@@ -169,7 +169,7 @@ class Statistic : Fragment(), OnChartValueSelectedListener {
         dataSet.sliceSpace = 1f
         dataSet.colors = colors
         pieChart.data = data
-        data.setValueTextSize(13f)
+        data.setValueTextSize(10f)
 
 //        for (i in 0 until dataSet.)
 
